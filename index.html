@@ -12,37 +12,41 @@
         
         .kpi-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; transition: transform 0.2s; position: relative; overflow: hidden; }
         .kpi-card:hover { transform: translateY(-3px); }
-        .kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
+        .kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; transition: background-color 0.3s; }
         
-        /* Cores das bordas laterais - Paleta do Modelo */
         .border-progresso::before { background-color: #1B365D; }
-        .border-semente::before { background-color: #1B365D; }
-        .border-prof::before { background-color: #5B9BD5; }
-        .border-planta::before { background-color: #1B365D; }
-        .border-plandupla::before { background-color: #D4A017; } /* Dourado/Laranja suave */
-        .border-germ::before { background-color: #20c997; }
+        .border-base::before { background-color: #6c757d; }
+
+        .border-verde::before { background-color: #28a745 !important; }
+        .border-laranja::before { background-color: #fd7e14 !important; }
+        .border-vermelho::before { background-color: #dc3545 !important; }
 
         .kpi-title { font-size: 0.75rem; color: #495057; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         .kpi-value { font-size: 1.5rem; font-weight: bold; }
         .kpi-sub { font-size: 0.75rem; color: #6c757d; margin-top: -3px; }
+        .kpi-meta { font-size: 0.8rem; color: #6c757d; margin-top: 8px; font-weight: 600; border-top: 1px dashed #dee2e6; padding-top: 5px;}
 
         .chart-container { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         
-        .status-bar { background: #1B365D; color: white; padding: 15px 20px; border-radius: 0 0 8px 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        .status-bar { background: #1B365D; color: white; padding: 10px 20px; border-radius: 0 0 8px 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
         .indicator-dot { height: 12px; width: 12px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 8px; animation: blink 2s infinite; }
         @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.4;} 100% {opacity: 1;} }
         
         .filter-section { background: white; border-radius: 8px; padding: 15px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .filter-label { font-weight: bold; color: #1B365D; font-size: 0.85rem; margin-bottom: 5px; display: block;}
-        .form-select { border: 1px solid #ced4da; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(0,0,0,.075); font-weight: 500; color: #495057; font-size: 0.9rem;}
+        .filter-label { font-weight: bold; color: #1B365D; font-size: 0.8rem; margin-bottom: 5px; display: block;}
+        .form-select { border: 1px solid #ced4da; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(0,0,0,.075); font-weight: 500; color: #495057; font-size: 0.85rem; padding: 4px 10px;}
         
         .section-title { font-size: 1.1rem; font-weight: bold; color: #1B365D; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 5px; }
     </style>
 </head>
 <body>
     <div class="container-fluid py-2 px-4">
+        <!-- Status Bar -->
         <div class="status-bar shadow-sm">
-            <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio (Soja)</h5>
+            <div class="d-flex align-items-center">
+                <img src="Logo.png" alt="Logo Fazenda Jatobá" style="height: 45px; margin-right: 15px; background: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'">
+                <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio</h5>
+            </div>
             <div class="d-flex align-items-center">
                 <span class="indicator-dot" id="dot-status"></span>
                 <span id="sync-status" class="fw-semibold" style="font-size: 0.9rem;">Aguardando Excel Local...</span>
@@ -50,28 +54,40 @@
         </div>
 
         <!-- Filtros Dinâmicos -->
-        <div class="filter-section py-3">
-            <div class="row align-items-end">
-                <div class="col-md-3">
+        <div class="filter-section py-2">
+            <div class="row align-items-end g-2">
+                <div class="col">
+                    <label for="filterCultura" class="filter-label">🌱 CULTURA</label>
+                    <select id="filterCultura" class="form-select" onchange="applyFilters()">
+                        <option value="ALL">(TODAS)</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="filterSafra" class="filter-label">📅 SAFRA</label>
+                    <select id="filterSafra" class="form-select" onchange="applyFilters()">
+                        <option value="ALL">(TODAS)</option>
+                    </select>
+                </div>
+                <div class="col">
                     <label for="filterNucleo" class="filter-label">📍 NÚCLEO</label>
                     <select id="filterNucleo" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODOS OS NÚCLEOS)</option>
+                        <option value="ALL">(TODOS)</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col">
                     <label for="filterTalhao" class="filter-label">🗺️ TALHÃO</label>
                     <select id="filterTalhao" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODOS OS TALHÕES)</option>
+                        <option value="ALL">(TODOS)</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col">
                     <label for="filterVariedade" class="filter-label">🧬 VARIEDADE</label>
                     <select id="filterVariedade" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODAS AS VARIEDADES)</option>
+                        <option value="ALL">(TODAS)</option>
                     </select>
                 </div>
-                <div class="col-md-3 text-end">
-                     <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">🔄 Limpar Filtros</button>
+                <div class="col-auto text-end">
+                     <button class="btn btn-outline-secondary btn-sm h-100 px-3" onclick="resetFilters()">🔄 Limpar</button>
                 </div>
             </div>
         </div>
@@ -102,42 +118,42 @@
             </div>
         </div>
 
-        <!-- Bloco 2: Qualidade Agronômica -->
+        <!-- Bloco 2: Qualidade Agronômica (Farol) -->
         <div class="section-title mt-2">Indicadores de Qualidade Operacional</div>
         <div class="row">
-            <!-- 1. Sementes / Metro -->
             <div class="col">
-                <div class="kpi-card border-semente">
+                <div class="kpi-card border-base" id="card-semente">
                     <div class="kpi-title">1. Sementes / Metro</div>
                     <div class="kpi-value" style="color: #1B365D" id="kpi-sem-metro">0,0</div>
+                    <div class="kpi-meta" id="meta-semente">🎯 Meta: Configurando...</div>
                 </div>
             </div>
-            <!-- 2. Profundidade -->
             <div class="col">
-                <div class="kpi-card border-prof">
+                <div class="kpi-card border-base" id="card-prof">
                     <div class="kpi-title">2. Profundidade</div>
-                    <div class="kpi-value" style="color: #5B9BD5" id="kpi-profundidade">0,0 cm</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-profundidade">0,0 cm</div>
+                    <div class="kpi-meta" id="meta-prof">🎯 Meta: Configurando...</div>
                 </div>
             </div>
-            <!-- 3. Plantas / Metro -->
             <div class="col">
-                <div class="kpi-card border-planta">
+                <div class="kpi-card border-base" id="card-planta">
                     <div class="kpi-title">3. Plantas / Metro</div>
                     <div class="kpi-value" style="color: #1B365D" id="kpi-plan-metro">0,0</div>
+                    <div class="kpi-meta" id="meta-planta">🎯 Meta: Configurando...</div>
                 </div>
             </div>
-            <!-- 4. Plantas Duplas -->
             <div class="col">
-                <div class="kpi-card border-plandupla">
+                <div class="kpi-card border-base" id="card-duplas">
                     <div class="kpi-title">4. Plantas Duplas</div>
-                    <div class="kpi-value" style="color: #D4A017" id="kpi-plan-duplas">0,0%</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-plan-duplas">0,0%</div>
+                    <div class="kpi-meta" id="meta-duplas">🎯 Meta: Configurando...</div>
                 </div>
             </div>
-            <!-- 5. Germinação -->
             <div class="col">
-                <div class="kpi-card border-germ">
+                <div class="kpi-card border-base" id="card-germ">
                     <div class="kpi-title">5. Germinação</div>
-                    <div class="kpi-value" style="color: #20c997" id="kpi-germinacao">0,0%</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-germinacao">0,0%</div>
+                    <div class="kpi-meta" id="meta-germ">🎯 Meta: Configurando...</div>
                 </div>
             </div>
         </div>
@@ -164,6 +180,7 @@
         let chartVariedadeInstance = null;
         let rawData = [];
         let filteredData = [];
+        let rawMetas = [];
         let lastRawDataHash = "";
         
         let initializedFilters = false;
@@ -174,35 +191,34 @@
             return parseFloat(val.toString().replace(',', '.')) || 0;
         }
 
-        // Função para repovoar os filtros de forma ENCADEADA (inteligente)
-        function updateDropdownOptions(currNuc, currTal, currVar) {
-            let availableNucleos = new Set();
-            let availableTalhoes = new Set();
-            let availableVariedades = new Set();
+        function updateDropdownOptions(currCult, currSafra, currNuc, currTal, currVar) {
+            let avCult = new Set(), avSafra = new Set(), avNuc = new Set(), avTal = new Set(), avVar = new Set();
 
             rawData.forEach(r => {
+                let c = r.Cultura ? r.Cultura.trim() : "";
+                let s = r.Safra ? r.Safra.trim() : "";
                 let n = r.Nucleo ? r.Nucleo.trim() : "";
                 let t = r.Talhao ? r.Talhao.trim() : "";
                 let v = r.Variedade ? r.Variedade.trim() : "";
 
+                let matchCult = (currCult === 'ALL') || (c === currCult);
+                let matchSafra = (currSafra === 'ALL') || (s === currSafra);
                 let matchNuc = (currNuc === 'ALL') || (n === currNuc);
                 let matchTal = (currTal === 'ALL') || (t === currTal);
                 let matchVar = (currVar === 'ALL') || (v === currVar);
 
-                // O campo disponível só mostra valores válidos cruzando os OUTROS dois filtros
-                if (matchTal && matchVar && n) availableNucleos.add(n);
-                if (matchNuc && matchVar && t) availableTalhoes.add(t);
-                if (matchNuc && matchTal && v) availableVariedades.add(v);
+                if (matchSafra && matchNuc && matchTal && matchVar && c) avCult.add(c);
+                if (matchCult && matchNuc && matchTal && matchVar && s) avSafra.add(s);
+                if (matchCult && matchSafra && matchTal && matchVar && n) avNuc.add(n);
+                if (matchCult && matchSafra && matchNuc && matchVar && t) avTal.add(t);
+                if (matchCult && matchSafra && matchNuc && matchTal && v) avVar.add(v);
             });
 
             function rebuildSelect(id, optionsSet, currentValue, defaultText) {
                 const sel = document.getElementById(id);
                 sel.innerHTML = `<option value="ALL">${defaultText}</option>`;
-                [...optionsSet].sort().forEach(x => {
-                    sel.add(new Option(x, x));
-                });
+                [...optionsSet].sort().forEach(x => { sel.add(new Option(x, x)); });
                 
-                // Mantém o valor se ele ainda for válido, senão volta pra ALL
                 if (currentValue === 'ALL' || [...optionsSet].includes(currentValue)) {
                     sel.value = currentValue;
                 } else {
@@ -210,12 +226,16 @@
                 }
             }
 
-            rebuildSelect('filterNucleo', availableNucleos, currNuc, '(TODOS OS NÚCLEOS)');
-            rebuildSelect('filterTalhao', availableTalhoes, currTal, '(TODOS OS TALHÕES)');
-            rebuildSelect('filterVariedade', availableVariedades, currVar, '(TODAS AS VARIEDADES)');
+            rebuildSelect('filterCultura', avCult, currCult, '(TODAS)');
+            rebuildSelect('filterSafra', avSafra, currSafra, '(TODAS)');
+            rebuildSelect('filterNucleo', avNuc, currNuc, '(TODOS)');
+            rebuildSelect('filterTalhao', avTal, currTal, '(TODOS)');
+            rebuildSelect('filterVariedade', avVar, currVar, '(TODAS)');
         }
 
         function resetFilters() {
+            document.getElementById('filterCultura').value = 'ALL';
+            document.getElementById('filterSafra').value = 'ALL';
             document.getElementById('filterNucleo').value = 'ALL';
             document.getElementById('filterTalhao').value = 'ALL';
             document.getElementById('filterVariedade').value = 'ALL';
@@ -223,97 +243,140 @@
         }
 
         function applyFilters() {
+            const selCult = document.getElementById('filterCultura');
+            const selSafra = document.getElementById('filterSafra');
             const selNuc = document.getElementById('filterNucleo');
             const selTal = document.getElementById('filterTalhao');
             const selVar = document.getElementById('filterVariedade');
             
+            const fCult = selCult ? selCult.value : 'ALL';
+            const fSafra = selSafra ? selSafra.value : 'ALL';
             const fNuc = selNuc ? selNuc.value : 'ALL';
             const fTal = selTal ? selTal.value : 'ALL';
             const fVar = selVar ? selVar.value : 'ALL';
 
             filteredData = rawData.filter(r => {
+                let mCult = (fCult === 'ALL') || (r.Cultura && r.Cultura.trim() === fCult);
+                let mSafra = (fSafra === 'ALL') || (r.Safra && r.Safra.trim() === fSafra);
                 let mNuc = (fNuc === 'ALL') || (r.Nucleo && r.Nucleo.trim() === fNuc);
                 let mTal = (fTal === 'ALL') || (r.Talhao && r.Talhao.trim() === fTal);
                 let mVar = (fVar === 'ALL') || (r.Variedade && r.Variedade.trim() === fVar);
-                return mNuc && mTal && mVar;
+                return mCult && mSafra && mNuc && mTal && mVar;
             });
             
-            updateDropdownOptions(fNuc, fTal, fVar);
+            updateDropdownOptions(fCult, fSafra, fNuc, fTal, fVar);
             renderCharts();
         }
 
+        function getMeta(safra, cultura, variedade) {
+            if(!rawMetas || rawMetas.length === 0) return null;
+            return rawMetas.find(x => 
+                (x.Safra && safra && x.Safra.trim() === safra.trim()) &&
+                (x.Cultura && cultura && x.Cultura.trim() === cultura.trim()) &&
+                (x.Variedade && variedade && x.Variedade.trim() === variedade.trim())
+            );
+        }
+
+        function getStatusClass(val, ideal, tolL, tolV) {
+            let diff = Math.abs(val - ideal);
+            if(diff >= tolV) return 'border-vermelho';
+            if(diff >= tolL) return 'border-laranja';
+            return 'border-verde';
+        }
+        function getProfClass(val, vMin, vMax, lMin) {
+            if(val >= vMin && val <= vMax) return 'border-verde';
+            if(val >= lMin && val < vMin) return 'border-laranja';
+            return 'border-vermelho';
+        }
+        function getDuplasClass(val, vMax, lMax) {
+            if(val <= vMax) return 'border-verde';
+            if(val <= lMax) return 'border-laranja';
+            return 'border-vermelho';
+        }
+        function getGermClass(val, vMin, lMin) {
+            if(val >= vMin) return 'border-verde';
+            if(val >= lMin) return 'border-laranja';
+            return 'border-vermelho';
+        }
+
+        function setCard(idCard, idMeta, classColor, metaText) {
+            let card = document.getElementById(idCard);
+            card.className = "kpi-card " + classColor;
+            document.getElementById(idMeta).innerText = metaText;
+        }
+
         function renderCharts() {
-            let countAnalisePlantio = 0;
-            let countAnaliseGerm = 0;
-            
-            let talhoesPlantio = new Set();
-            let talhoesGerminacao = new Set();
-            
+            let countAnalisePlantio = 0; let countAnaliseGerm = 0;
+            let talhoesPlantio = new Set(); let talhoesGerminacao = new Set();
             let sumProf = 0; let nProf = 0;
             let sumSem = 0; let nSem = 0;
             let sumPlan = 0; let nPlan = 0;
-            
-            let sumPlanTotais = 0;
-            let sumPlanDuplasTotais = 0;
-            
-            let estandeEsperadoTotal = 0;
-            let estandeNascidoTotal = 0;
-
+            let sumPlanTotais = 0; let sumPlanDuplasTotais = 0;
+            let estandeEsperadoTotal = 0; let estandeNascidoTotal = 0;
             let varMap = {}; 
+
+            // Totais de Metas
+            let tMS = 0, tTL_S = 0, tTV_S = 0, nMS = 0;
+            let tMP = 0, tTL_P = 0, tTV_P = 0, nMP = 0;
+            let tProfVM = 0, tProfVX = 0, tProfLM = 0, nMProf = 0;
+            let tGermV = 0, tGermL = 0, nMGerm = 0;
+            let tDupV = 0, tDupL = 0, nMDup = 0;
 
             filteredData.forEach(row => {
                 let sc = parseNum(row.SemContadas);
                 let pc = parseNum(row.PlantasContadas);
                 let pd = parseNum(row.PlantasDuplas);
-                
-                // Contagem de Cobertura
-                if(sc > 0) {
-                    countAnalisePlantio++;
-                    if(row.Talhao) talhoesPlantio.add(row.Talhao.trim());
-                }
-                if(pc > 0) {
-                    countAnaliseGerm++;
-                    if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim());
-                }
-
-                // Profundidade
                 let prof = parseNum(row.Profundidade);
-                if(prof > 0) { sumProf += prof; nProf++; }
-
-                // Sementes por metro
-                let amos_m = parseNum(row.Amos_m) || 3;
-                let sem_metro = 0;
-                if (sc > 0) { 
-                    sem_metro = sc / amos_m; 
-                    sumSem += sem_metro; nSem++; 
-                }
-
-                // Plantas por metro e Plantas Duplas
-                let planAmos_m = parseNum(row.AmosPlantas_m) || 10;
-                let plan_metro = 0;
-                if (pc > 0) { 
-                    plan_metro = pc / planAmos_m; 
-                    sumPlan += plan_metro; nPlan++; 
+                let meta = getMeta(row.Safra, row.Cultura, row.Variedade);
+                
+                if(sc > 0) { 
+                    countAnalisePlantio++; 
+                    if(row.Talhao) talhoesPlantio.add(row.Talhao.trim()); 
                     
-                    sumPlanTotais += pc;
-                    sumPlanDuplasTotais += pd;
+                    let amos_m = parseNum(row.Amos_m) || 3;
+                    let sem_metro = sc / amos_m; 
+                    sumSem += sem_metro; nSem++; 
+                    
+                    if(meta) {
+                        tMS += parseNum(meta.Meta_Sem_m); tTL_S += parseNum(meta.Tol_Sem_Laranja); tTV_S += parseNum(meta.Tol_Sem_Vermelho); nMS++;
+                    }
                 }
                 
-                // Germinação
-                let sem_esperada_m = parseNum(row.SemEsperadas_m);
-                if (sem_esperada_m > 0 && plan_metro > 0) {
-                    estandeEsperadoTotal += sem_esperada_m;
-                    estandeNascidoTotal += plan_metro;
+                if(prof > 0) { 
+                    sumProf += prof; nProf++; 
+                    if(meta) {
+                        tProfVM += parseNum(meta.Prof_Verde_Min); tProfVX += parseNum(meta.Prof_Verde_Max); tProfLM += parseNum(meta.Prof_Laranja_Min); nMProf++;
+                    }
                 }
 
-                // Dados para o Gráfico
+                if(pc > 0) { 
+                    countAnaliseGerm++; 
+                    if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim()); 
+                    
+                    let planAmos_m = parseNum(row.AmosPlantas_m) || 10;
+                    let plan_metro = pc / planAmos_m; 
+                    sumPlan += plan_metro; nPlan++; 
+                    sumPlanTotais += pc; sumPlanDuplasTotais += pd;
+                    
+                    let sem_esperada_m = parseNum(row.SemEsperadas_m);
+                    if (sem_esperada_m > 0) {
+                        estandeEsperadoTotal += sem_esperada_m; estandeNascidoTotal += plan_metro;
+                    }
+
+                    if(meta) {
+                        tMP += parseNum(meta.Meta_Plan_m); tTL_P += parseNum(meta.Tol_Plan_Laranja); tTV_P += parseNum(meta.Tol_Plan_Vermelho); nMP++;
+                        tGermV += parseNum(meta.Meta_Germ_Verde); tGermL += parseNum(meta.Meta_Germ_Laranja); nMGerm++;
+                        tDupV += parseNum(meta.Duplas_Verde_Max); tDupL += parseNum(meta.Duplas_Laranja_Max); nMDup++;
+                    }
+                }
+
                 let v = row.Variedade || "Não Informada";
                 if (!varMap[v]) varMap[v] = { sumS:0, countS:0, sumP:0, countP:0 };
-                if (sc > 0) { varMap[v].sumS += sem_metro; varMap[v].countS++; }
-                if (pc > 0) { varMap[v].sumP += plan_metro; varMap[v].countP++; }
+                if (sc > 0) { varMap[v].sumS += (sc / (parseNum(row.Amos_m) || 3)); varMap[v].countS++; }
+                if (pc > 0) { varMap[v].sumP += (pc / (parseNum(row.AmosPlantas_m) || 10)); varMap[v].countP++; }
             });
 
-            // Cálculos Finais
+            // Medias Reais
             let percCobertura = talhoesPlantio.size > 0 ? (talhoesGerminacao.size / talhoesPlantio.size) * 100 : 0;
             let avgProf = nProf ? (sumProf/nProf) : 0;
             let avgSem = nSem ? (sumSem/nSem) : 0;
@@ -321,25 +384,45 @@
             let txPlanDuplas = sumPlanTotais > 0 ? (sumPlanDuplasTotais / sumPlanTotais) * 100 : 0; 
             let txEmerge = estandeEsperadoTotal ? (estandeNascidoTotal/estandeEsperadoTotal)*100 : 0;
 
-            // Atualiza HTML - Bloco 1
+            // Medias das Metas
+            let avgMS = nMS ? (tMS/nMS) : null; let avgTL_S = nMS ? (tTL_S/nMS) : null; let avgTV_S = nMS ? (tTV_S/nMS) : null;
+            let avgMP = nMP ? (tMP/nMP) : null; let avgTL_P = nMP ? (tTL_P/nMP) : null; let avgTV_P = nMP ? (tTV_P/nMP) : null;
+            let avgProfVM = nMProf ? (tProfVM/nMProf) : null; let avgProfVX = nMProf ? (tProfVX/nMProf) : null; let avgProfLM = nMProf ? (tProfLM/nMProf) : null;
+            let avgGermV = nMGerm ? (tGermV/nMGerm)*100 : null; let avgGermL = nMGerm ? (tGermL/nMGerm)*100 : null;
+            let avgDupV = nMDup ? (tDupV/nMDup)*100 : null; let avgDupL = nMDup ? (tDupL/nMDup)*100 : null;
+
+            // Atualiza Bloco 1
             document.getElementById('kpi-analise-plantio').innerText = countAnalisePlantio;
             document.getElementById('kpi-analise-germ').innerText = countAnaliseGerm;
             document.getElementById('kpi-cobertura').innerText = percCobertura.toFixed(1).replace('.', ',') + "%";
             document.getElementById('sub-cobertura').innerText = `${talhoesGerminacao.size} de ${talhoesPlantio.size} talhões com estande avaliado`;
 
-            // Atualiza HTML - Bloco 2
+            // Atualiza Valores Bloco 2
             document.getElementById('kpi-sem-metro').innerText = avgSem.toFixed(2).replace('.', ',');
             document.getElementById('kpi-profundidade').innerText = avgProf.toFixed(1).replace('.', ',') + " cm";
             document.getElementById('kpi-plan-metro').innerText = avgPlan.toFixed(2).replace('.', ',');
             document.getElementById('kpi-plan-duplas').innerText = txPlanDuplas.toFixed(1).replace('.', ',') + "%";
             document.getElementById('kpi-germinacao').innerText = txEmerge.toFixed(1).replace('.', ',') + "%";
 
-            // Prepara Dados para Gráficos
-            let varLabels = [];
-            let varSemData = [];
-            let varPlanData = [];
-            let varDoughnutData = [];
+            // Aplica Farol e Textos das Metas
+            let cSem = avgMS ? getStatusClass(avgSem, avgMS, avgTL_S, avgTV_S) : 'border-base';
+            setCard('card-semente', 'meta-semente', cSem, avgMS ? `🎯 Meta: ${avgMS.toFixed(1).replace('.',',')}` : '🎯 Meta: S/D');
 
+            let cProf = avgProfVM ? getProfClass(avgProf, avgProfVM, avgProfVX, avgProfLM) : 'border-base';
+            setCard('card-prof', 'meta-prof', cProf, avgProfVM ? `🎯 Meta: ${avgProfVM.toFixed(1).replace('.',',')} a ${avgProfVX.toFixed(1).replace('.',',')} cm` : '🎯 Meta: S/D');
+
+            let cPlan = avgMP ? getStatusClass(avgPlan, avgMP, avgTL_P, avgTV_P) : 'border-base';
+            setCard('card-planta', 'meta-planta', cPlan, avgMP ? `🎯 Meta: ${avgMP.toFixed(1).replace('.',',')}` : '🎯 Meta: S/D');
+
+            let cDup = avgDupV ? getDuplasClass(txPlanDuplas, avgDupV, avgDupL) : 'border-base';
+            setCard('card-duplas', 'meta-duplas', cDup, avgDupV ? `🎯 Meta: Máx ${avgDupV.toFixed(1).replace('.',',')}%` : '🎯 Meta: S/D');
+
+            let cGerm = avgGermV ? getGermClass(txEmerge, avgGermV, avgGermL) : 'border-base';
+            setCard('card-germ', 'meta-germ', cGerm, avgGermV ? `🎯 Meta: Mín ${avgGermV.toFixed(1).replace('.',',')}%` : '🎯 Meta: S/D');
+
+
+            // Graficos
+            let varLabels = []; let varSemData = []; let varPlanData = []; let varDoughnutData = [];
             Object.keys(varMap).forEach(v => {
                 varLabels.push(v);
                 varSemData.push(varMap[v].countS ? (varMap[v].sumS / varMap[v].countS) : 0);
@@ -347,44 +430,42 @@
                 varDoughnutData.push(varMap[v].countS + varMap[v].countP);
             });
 
-            // Gráfico Estande (Azul Claro e Azul Escuro)
             if (chartEstandeInstance) chartEstandeInstance.destroy();
             chartEstandeInstance = new Chart(document.getElementById('chartEstande').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: varLabels,
                     datasets: [
-                        {
-                            label: 'Sementes/m',
-                            data: varSemData,
-                            backgroundColor: '#5B9BD5', // Azul Claro
-                            borderRadius: 4,
-                            datalabels: { color: '#000' } 
-                        },
-                        {
-                            label: 'Plantas/m (Estande)',
-                            data: varPlanData,
-                            backgroundColor: '#1B365D', // Azul Escuro
-                            borderRadius: 4,
-                            datalabels: { color: '#fff' } 
-                        }
+                        { label: 'Sementes/m', data: varSemData, backgroundColor: '#5B9BD5', borderRadius: 4, datalabels: { color: '#000' } },
+                        { label: 'Plantas/m (Estande)', data: varPlanData, backgroundColor: '#1B365D', borderRadius: 4, datalabels: { color: '#fff' } }
                     ]
                 },
                 options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { 
                         title: { display: true, text: 'Sementes vs Plantas por Variedade', font: {size: 14} },
                         legend: { position: 'bottom' },
                         datalabels: {
-                            anchor: 'center', align: 'center', font: { weight: 'bold', size: 11 },
-                            formatter: function(value) { return value > 0 ? value.toFixed(1).replace('.', ',') : ''; }
+                            anchor: 'center', align: 'center', rotation: -90, font: { weight: 'bold', size: 11 },
+                            formatter: function(value, context) { 
+                                if (value <= 0) return '';
+                                let texto = value.toFixed(1).replace('.', ',');
+                                if (context.datasetIndex === 0) {
+                                    texto += ' (100%)';
+                                } else if (context.datasetIndex === 1) {
+                                    let sementes = context.chart.data.datasets[0].data[context.dataIndex];
+                                    if (sementes > 0) {
+                                        let perc = (value / sementes) * 100;
+                                        texto += ' (' + perc.toFixed(1).replace('.', ',') + '%)';
+                                    }
+                                }
+                                return texto; 
+                            }
                         }
                     }
                 }
             });
 
-            // Gráfico Variedades Doughnut (Tons de Azul e Cinza)
             if (chartVariedadeInstance) chartVariedadeInstance.destroy();
             chartVariedadeInstance = new Chart(document.getElementById('chartVariedade').getContext('2d'), {
                 type: 'doughnut',
@@ -396,8 +477,7 @@
                     }]
                 },
                 options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { 
                         title: { display: true, text: 'Amostras Totais por Variedade', font: {size: 14} },
                         legend: { position: 'bottom', labels: { boxWidth: 10 } },
@@ -414,14 +494,16 @@
             if (typeof dashboardData === 'undefined' || !dashboardData || dashboardData.length === 0) {
                 setSyncStatus("Planilha vazia ou lendo...", "yellow"); return;
             }
-            let currentHash = JSON.stringify(dashboardData);
+            
+            let currentHash = JSON.stringify(dashboardData) + (typeof metasData !== 'undefined' ? JSON.stringify(metasData) : "");
             if (currentHash === lastRawDataHash) return;
             
             lastRawDataHash = currentHash;
             rawData = dashboardData;
+            rawMetas = typeof metasData !== 'undefined' ? metasData : [];
             
             if (!initializedFilters) {
-                updateDropdownOptions('ALL', 'ALL', 'ALL');
+                updateDropdownOptions('ALL', 'ALL', 'ALL', 'ALL', 'ALL');
                 initializedFilters = true;
             }
             
