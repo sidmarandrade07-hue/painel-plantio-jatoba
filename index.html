@@ -44,11 +44,11 @@
                 <div class="logo-container">
                     <img src="Logo.png" alt="Logo Jatobá" class="logo-img" onerror="this.style.display='none'">
                 </div>
-                <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio</h5>
+                <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio (Soja)</h5>
             </div>
             <div class="d-flex align-items-center">
                 <span class="indicator-dot" id="dot-status"></span>
-                <span id="sync-status" class="fw-semibold" style="font-size: 0.9rem;">Aguardando JSON Local...</span>
+                <span id="sync-status" class="fw-semibold" style="font-size: 0.9rem;">Aguardando dados...</span>
             </div>
         </div>
 
@@ -279,7 +279,26 @@
 
             let metaDict = {};
             if (typeof dashboardMetas !== 'undefined' && dashboardMetas) {
-                dashboardMetas.forEach(m => { if(m.Variedade) metaDict[m.Variedade.trim()] = m; });
+                // Inteligência para aceitar nomes exatos do seu PowerAutomate
+                dashboardMetas.forEach(m => { 
+                    if(m.Variedade) {
+                        metaDict[m.Variedade.trim()] = {
+                            MetaSem: parseNum(m.Meta_Sem_m),
+                            TolSemLaranja: parseNum(m.Tol_Sem_Laranja),
+                            TolSemVermelho: parseNum(m.Tol_Sem_Vermelho),
+                            ProfVerdeMin: parseNum(m.Prof_Verde_Min),
+                            ProfVerdeMax: parseNum(m.Prof_Verde_Max),
+                            ProfLaranjaMin: parseNum(m.Prof_Laranja_Min),
+                            MetaPlan: parseNum(m.Meta_Plan_m),
+                            TolPlanLaranja: parseNum(m.Tol_Plan_Laranja),
+                            TolPlanVermelho: parseNum(m.Tol_Plan_Vermelho),
+                            DuplaVerdeMax: parseNum(m.Duplas_Verde_Max),
+                            DuplaLaranjaMax: parseNum(m.Duplas_Laranja_Max),
+                            GermVerdeMin: parseNum(m.Meta_Germ_Verde),
+                            GermLaranjaMin: parseNum(m.Meta_Germ_Laranja)
+                        };
+                    } 
+                });
             }
 
             let varMap = {}; 
@@ -288,13 +307,14 @@
                 let sc = parseNum(row.SemContadas);
                 let pc = parseNum(row.PlantasContadas);
                 let pd = parseNum(row.PlantasDuplas);
-                let area = parseNum(row.Area) || 1;
+                let area = parseNum(row.Area) || parseNum(row.Área) || 1; // Aceita com ou sem acento
                 
                 let v = row.Variedade ? row.Variedade.trim() : "";
                 let m = metaDict[v];
                 
-                if (row.DataPlantio) { datesSet.add(row.DataPlantio); }
-                else if (row.Data) { datesSet.add(row.Data.split('T')[0]); } // Fallback to 'Data' if DataPlantio is not mapped
+                // Trata as variações do nome da coluna Data (Adicionei Data_ da sua base)
+                let rowDate = row.DataPlantio || row.Data || row['Data '] || row.Data_;
+                if (rowDate) { datesSet.add(rowDate.split('T')[0]); } 
                 
                 if(sc > 0) { countAnalisePlantio++; if(row.Talhao) talhoesPlantio.add(row.Talhao.trim()); }
                 if(pc > 0) { countAnaliseGerm++; if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim()); }
@@ -304,25 +324,25 @@
                 if(prof > 0) { 
                     sumAreaProf += (prof * area); 
                     weightProf += area; 
-                    if(m && m.ProfVerdeMin !== null && m.ProfVerdeMax !== null) {
-                        sumAreaProfMin += parseNum(m.ProfVerdeMin) * area;
-                        sumAreaProfMax += parseNum(m.ProfVerdeMax) * area;
-                        sumAreaProfLar += parseNum(m.ProfLaranjaMin) * area;
+                    if(m && m.ProfVerdeMax > 0) {
+                        sumAreaProfMin += m.ProfVerdeMin * area;
+                        sumAreaProfMax += m.ProfVerdeMax * area;
+                        sumAreaProfLar += m.ProfLaranjaMin * area;
                         weightMetaProf += area;
                     }
                 }
 
                 // 1. Sementes/m
-                let amos_m = parseNum(row.Amos_m) || 3;
+                let amos_m = parseNum(row.Amos_m) || parseNum(row['Amostragem (m)']) || 3;
                 let sem_metro = 0;
                 if (sc > 0) { 
                     sem_metro = sc / amos_m; 
                     sumAreaSem += (sem_metro * area); 
                     weightSem += area; 
-                    if(m) {
-                        sumAreaMetaSem += parseNum(m.MetaSem) * area;
-                        sumAreaTolSemLar += parseNum(m.TolSemLaranja) * area;
-                        sumAreaTolSemVerm += parseNum(m.TolSemVermelho) * area;
+                    if(m && m.MetaSem > 0) {
+                        sumAreaMetaSem += m.MetaSem * area;
+                        sumAreaTolSemLar += m.TolSemLaranja * area;
+                        sumAreaTolSemVerm += m.TolSemVermelho * area;
                         weightMetaSem += area;
                     }
                 }
@@ -339,26 +359,26 @@
                     sumAreaPlanDuplas += (txDuplaLinha * area);
                     weightPlanDuplas += area;
                     
-                    if(m) {
-                        sumAreaMetaPlan += parseNum(m.MetaPlan) * area;
-                        sumAreaTolPlanLar += parseNum(m.TolPlanLaranja) * area;
-                        sumAreaTolPlanVerm += parseNum(m.TolPlanVermelho) * area;
+                    if(m && m.MetaPlan > 0) {
+                        sumAreaMetaPlan += m.MetaPlan * area;
+                        sumAreaTolPlanLar += m.TolPlanLaranja * area;
+                        sumAreaTolPlanVerm += m.TolPlanVermelho * area;
                         weightMetaPlan += area;
                         
-                        sumAreaDuplaVerde += parseNum(m.DuplaVerdeMax) * area;
-                        sumAreaDuplaLar += parseNum(m.DuplaLaranjaMax) * area;
+                        sumAreaDuplaVerde += m.DuplaVerdeMax * area;
+                        sumAreaDuplaLar += m.DuplaLaranjaMax * area;
                         weightMetaDupla += area;
                     }
                 }
                 
                 // 5. Germinação
-                let sem_esperada_m = parseNum(row.SemEsperadas_m);
+                let sem_esperada_m = parseNum(row.SemEsperadas_m) || parseNum(row['Sementes por metro esperadas  ']) || parseNum(row.SemEsperadas_m);
                 if (sem_esperada_m > 0 && plan_metro > 0) {
                     sumAreaEmergeEsperado += (sem_esperada_m * area);
                     sumAreaEmergeNascido += (plan_metro * area);
-                    if(m) {
-                        sumAreaGermVerde += parseNum(m.GermVerdeMin) * area;
-                        sumAreaGermLar += parseNum(m.GermLaranjaMin) * area;
+                    if(m && m.GermVerdeMin > 0) {
+                        sumAreaGermVerde += m.GermVerdeMin * area;
+                        sumAreaGermLar += m.GermLaranjaMin * area;
                         weightMetaGerm += area;
                     }
                 }
@@ -389,7 +409,7 @@
                 
                 let diffTime = today.getTime() - minDate.getTime();
                 let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including today
-                diffDays = diffDays > 0 ? diffDays : 0; // fallback just in case
+                diffDays = diffDays > 0 ? diffDays : 0;
                 
                 document.getElementById('kpi-dias-plantio').innerText = diffDays;
                 
@@ -418,14 +438,13 @@
             document.getElementById('kpi-plan-duplas').innerText = txPlanDuplas.toFixed(2).replace('.', ',') + "%";
             document.getElementById('kpi-germinacao').innerText = txEmerge.toFixed(2).replace('.', ',') + "%";
 
-            // Set default colors for top cards
             setCardColor('card-prog-1', COLOR_NEUTRAL);
             setCardColor('card-prog-2', COLOR_NEUTRAL);
             setCardColor('card-prog-3', COLOR_NEUTRAL);
             setCardColor('card-prog-dias', COLOR_NEUTRAL);
 
             // ----------------------------------------------------
-            // FECHAMENTO METAS E CORES
+            // FECHAMENTO METAS E CORES FAROL
             // ----------------------------------------------------
             
             // 1. Sementes/m (Cor e Meta)
@@ -449,7 +468,7 @@
                 let pMin = sumAreaProfMin / weightMetaProf;
                 let pMax = sumAreaProfMax / weightMetaProf;
                 let pLarMin = sumAreaProfLar / weightMetaProf;
-                let pLarMax = pMax + (pMin - pLarMin); // Simétrica para limite superior
+                let pLarMax = pMax + (pMin - pLarMin);
                 
                 document.getElementById('meta-profundidade').innerText = `🎯 Meta: ${pMin.toFixed(1).replace('.', ',')} a ${pMax.toFixed(1).replace('.', ',')} cm`;
                 
@@ -501,7 +520,7 @@
             setCardColor('card-germ', colGerm);
 
             // ----------------------------------------------------
-            // GRÁFICOS (Estande com Rótulos de Porcentagem Vertical)
+            // GRÁFICOS
             // ----------------------------------------------------
             let varLabels = [];
             let varSemData = [];
