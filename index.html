@@ -10,41 +10,40 @@
     <style>
         body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        .kpi-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; transition: transform 0.2s; position: relative; overflow: hidden; }
+        .kpi-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; transition: transform 0.2s; position: relative; overflow: hidden; height: 100%;}
         .kpi-card:hover { transform: translateY(-3px); }
-        .kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; transition: background-color 0.3s; }
+        .kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background-color: var(--card-color, #1B365D); transition: background-color 0.4s ease; }
         
-        .border-progresso::before { background-color: #1B365D; }
-        .border-base::before { background-color: #6c757d; }
-
-        .border-verde::before { background-color: #28a745 !important; }
-        .border-laranja::before { background-color: #fd7e14 !important; }
-        .border-vermelho::before { background-color: #dc3545 !important; }
-
         .kpi-title { font-size: 0.75rem; color: #495057; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         .kpi-value { font-size: 1.5rem; font-weight: bold; }
         .kpi-sub { font-size: 0.75rem; color: #6c757d; margin-top: -3px; }
-        .kpi-meta { font-size: 0.8rem; color: #6c757d; margin-top: 8px; font-weight: 600; border-top: 1px dashed #dee2e6; padding-top: 5px;}
+        .kpi-meta { font-size: 0.8rem; color: #6c757d; font-weight: 600; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #e9ecef;}
 
         .chart-container { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         
-        .status-bar { background: #1B365D; color: white; padding: 10px 20px; border-radius: 0 0 8px 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        .status-bar { background: #1B365D; color: white; padding: 15px 20px; border-radius: 0 0 8px 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        
+        /* Logo Styles */
+        .logo-container { background: white; border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
+        .logo-img { height: 40px; width: auto; object-fit: contain; }
+        
         .indicator-dot { height: 12px; width: 12px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 8px; animation: blink 2s infinite; }
         @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.4;} 100% {opacity: 1;} }
         
         .filter-section { background: white; border-radius: 8px; padding: 15px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .filter-label { font-weight: bold; color: #1B365D; font-size: 0.8rem; margin-bottom: 5px; display: block;}
-        .form-select { border: 1px solid #ced4da; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(0,0,0,.075); font-weight: 500; color: #495057; font-size: 0.85rem; padding: 4px 10px;}
+        .filter-label { font-weight: bold; color: #1B365D; font-size: 0.85rem; margin-bottom: 5px; display: block;}
+        .form-select { border: 1px solid #ced4da; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(0,0,0,.075); font-weight: 500; color: #495057; font-size: 0.9rem;}
         
         .section-title { font-size: 1.1rem; font-weight: bold; color: #1B365D; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 5px; }
     </style>
 </head>
 <body>
     <div class="container-fluid py-2 px-4">
-        <!-- Status Bar -->
         <div class="status-bar shadow-sm">
             <div class="d-flex align-items-center">
-                <img src="Logo.png" alt="Logo Fazenda Jatobá" style="height: 45px; margin-right: 15px; background: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'">
+                <div class="logo-container">
+                    <img src="Logo.png" alt="Logo Jatobá" class="logo-img" onerror="this.style.display='none'">
+                </div>
                 <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio</h5>
             </div>
             <div class="d-flex align-items-center">
@@ -53,112 +52,109 @@
             </div>
         </div>
 
-        <!-- Filtros Dinâmicos -->
-        <div class="filter-section py-2">
-            <div class="row align-items-end g-2">
-                <div class="col">
-                    <label for="filterCultura" class="filter-label">🌱 CULTURA</label>
-                    <select id="filterCultura" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODAS)</option>
-                    </select>
-                </div>
-                <div class="col">
+        <div class="filter-section py-3">
+            <div class="row align-items-end">
+                <div class="col-md-2">
                     <label for="filterSafra" class="filter-label">📅 SAFRA</label>
                     <select id="filterSafra" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODAS)</option>
+                        <option value="ALL">(TODAS AS SAFRAS)</option>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-2">
                     <label for="filterNucleo" class="filter-label">📍 NÚCLEO</label>
                     <select id="filterNucleo" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODOS)</option>
+                        <option value="ALL">(TODOS OS NÚCLEOS)</option>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <label for="filterTalhao" class="filter-label">🗺️ TALHÃO</label>
                     <select id="filterTalhao" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODOS)</option>
+                        <option value="ALL">(TODOS OS TALHÕES)</option>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <label for="filterVariedade" class="filter-label">🧬 VARIEDADE</label>
                     <select id="filterVariedade" class="form-select" onchange="applyFilters()">
-                        <option value="ALL">(TODAS)</option>
+                        <option value="ALL">(TODAS AS VARIEDADES)</option>
                     </select>
                 </div>
-                <div class="col-auto text-end">
-                     <button class="btn btn-outline-secondary btn-sm h-100 px-3" onclick="resetFilters()">🔄 Limpar</button>
+                <div class="col-md-2 text-end">
+                     <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">🔄 Limpar Filtros</button>
                 </div>
             </div>
         </div>
 
-        <!-- Bloco 1: Acompanhamento de Cobertura -->
         <div class="section-title">Acompanhamento e Cobertura de Avaliação</div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="kpi-card border-progresso">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="kpi-card" id="card-prog-1">
                     <div class="kpi-title">Análises de Plantio (Inicial)</div>
                     <div class="kpi-value" style="color: #1B365D" id="kpi-analise-plantio">0</div>
                     <div class="kpi-sub">Amostras colhidas logo após plantadeira</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="kpi-card border-progresso">
+            <div class="col-md-3">
+                <div class="kpi-card" id="card-prog-2">
                     <div class="kpi-title">Análises até Germinação</div>
                     <div class="kpi-value" style="color: #1B365D" id="kpi-analise-germ">0</div>
                     <div class="kpi-sub">Amostras com estande final avaliado</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="kpi-card border-progresso">
+            <div class="col-md-3">
+                <div class="kpi-card" id="card-prog-dias">
+                    <div class="kpi-title">Dias de Plantio</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-dias-plantio">-</div>
+                    <div class="kpi-sub" id="sub-dias-plantio">Duração baseada no filtro selecionado</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card" id="card-prog-3">
                     <div class="kpi-title">% Talhões Avaliados (Completos)</div>
-                    <div class="kpi-value" style="color: #1B365D" id="kpi-cobertura">0%</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-cobertura">0,00%</div>
                     <div class="kpi-sub" id="sub-cobertura">0 de 0 talhões com germinação lida</div>
                 </div>
             </div>
         </div>
 
-        <!-- Bloco 2: Qualidade Agronômica (Farol) -->
         <div class="section-title mt-2">Indicadores de Qualidade Operacional</div>
         <div class="row">
             <div class="col">
-                <div class="kpi-card border-base" id="card-semente">
+                <div class="kpi-card" id="card-sem">
                     <div class="kpi-title">1. Sementes / Metro</div>
-                    <div class="kpi-value" style="color: #1B365D" id="kpi-sem-metro">0,0</div>
-                    <div class="kpi-meta" id="meta-semente">🎯 Meta: Configurando...</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-sem-metro">0,00</div>
+                    <div class="kpi-meta" id="meta-sem-metro">🎯 Meta: -</div>
                 </div>
             </div>
             <div class="col">
-                <div class="kpi-card border-base" id="card-prof">
+                <div class="kpi-card" id="card-prof">
                     <div class="kpi-title">2. Profundidade</div>
-                    <div class="kpi-value" style="color: #1B365D" id="kpi-profundidade">0,0 cm</div>
-                    <div class="kpi-meta" id="meta-prof">🎯 Meta: Configurando...</div>
+                    <div class="kpi-value" style="color: #5B9BD5" id="kpi-profundidade">0,0 cm</div>
+                    <div class="kpi-meta" id="meta-profundidade">🎯 Meta: -</div>
                 </div>
             </div>
             <div class="col">
-                <div class="kpi-card border-base" id="card-planta">
+                <div class="kpi-card" id="card-plan">
                     <div class="kpi-title">3. Plantas / Metro</div>
-                    <div class="kpi-value" style="color: #1B365D" id="kpi-plan-metro">0,0</div>
-                    <div class="kpi-meta" id="meta-planta">🎯 Meta: Configurando...</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-plan-metro">0,00</div>
+                    <div class="kpi-meta" id="meta-plan-metro">🎯 Meta: -</div>
                 </div>
             </div>
             <div class="col">
-                <div class="kpi-card border-base" id="card-duplas">
+                <div class="kpi-card" id="card-dupla">
                     <div class="kpi-title">4. Plantas Duplas</div>
-                    <div class="kpi-value" style="color: #1B365D" id="kpi-plan-duplas">0,0%</div>
-                    <div class="kpi-meta" id="meta-duplas">🎯 Meta: Configurando...</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-plan-duplas">0,00%</div>
+                    <div class="kpi-meta" id="meta-plan-duplas">🎯 Meta: -</div>
                 </div>
             </div>
             <div class="col">
-                <div class="kpi-card border-base" id="card-germ">
+                <div class="kpi-card" id="card-germ">
                     <div class="kpi-title">5. Germinação</div>
-                    <div class="kpi-value" style="color: #1B365D" id="kpi-germinacao">0,0%</div>
-                    <div class="kpi-meta" id="meta-germ">🎯 Meta: Configurando...</div>
+                    <div class="kpi-value" style="color: #1B365D" id="kpi-germinacao">0,00%</div>
+                    <div class="kpi-meta" id="meta-germinacao">🎯 Meta: -</div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráficos -->
         <div class="row">
             <div class="col-md-8">
                 <div class="chart-container">
@@ -180,10 +176,14 @@
         let chartVariedadeInstance = null;
         let rawData = [];
         let filteredData = [];
-        let rawMetas = [];
         let lastRawDataHash = "";
-        
         let initializedFilters = false;
+        
+        // Cores Dinâmicas dos Status
+        const COLOR_GREEN = '#28a745';
+        const COLOR_ORANGE = '#fd7e14';
+        const COLOR_RED = '#dc3545';
+        const COLOR_NEUTRAL = '#1B365D';
 
         function parseNum(val) {
             if (val === null || val === undefined || val === "") return 0;
@@ -191,50 +191,43 @@
             return parseFloat(val.toString().replace(',', '.')) || 0;
         }
 
-        function updateDropdownOptions(currCult, currSafra, currNuc, currTal, currVar) {
-            let avCult = new Set(), avSafra = new Set(), avNuc = new Set(), avTal = new Set(), avVar = new Set();
+        function updateDropdownOptions(currSafra, currNuc, currTal, currVar) {
+            let availableSafras = new Set();
+            let availableNucleos = new Set();
+            let availableTalhoes = new Set();
+            let availableVariedades = new Set();
 
             rawData.forEach(r => {
-                let c = r.Cultura ? r.Cultura.trim() : "";
-                let s = r.Safra ? r.Safra.trim() : "";
-                let n = r.Nucleo ? r.Nucleo.trim() : "";
-                let t = r.Talhao ? r.Talhao.trim() : "";
-                let v = r.Variedade ? r.Variedade.trim() : "";
+                let s = r.Safra ? String(r.Safra).trim() : "";
+                let n = r.Nucleo ? String(r.Nucleo).trim() : "";
+                let t = r.Talhao ? String(r.Talhao).trim() : "";
+                let v = r.Variedade ? String(r.Variedade).trim() : "";
 
-                let matchCult = (currCult === 'ALL') || (c === currCult);
                 let matchSafra = (currSafra === 'ALL') || (s === currSafra);
                 let matchNuc = (currNuc === 'ALL') || (n === currNuc);
                 let matchTal = (currTal === 'ALL') || (t === currTal);
                 let matchVar = (currVar === 'ALL') || (v === currVar);
 
-                if (matchSafra && matchNuc && matchTal && matchVar && c) avCult.add(c);
-                if (matchCult && matchNuc && matchTal && matchVar && s) avSafra.add(s);
-                if (matchCult && matchSafra && matchTal && matchVar && n) avNuc.add(n);
-                if (matchCult && matchSafra && matchNuc && matchVar && t) avTal.add(t);
-                if (matchCult && matchSafra && matchNuc && matchTal && v) avVar.add(v);
+                if (matchNuc && matchTal && matchVar && s) availableSafras.add(s);
+                if (matchSafra && matchTal && matchVar && n) availableNucleos.add(n);
+                if (matchSafra && matchNuc && matchVar && t) availableTalhoes.add(t);
+                if (matchSafra && matchNuc && matchTal && v) availableVariedades.add(v);
             });
 
             function rebuildSelect(id, optionsSet, currentValue, defaultText) {
                 const sel = document.getElementById(id);
                 sel.innerHTML = `<option value="ALL">${defaultText}</option>`;
                 [...optionsSet].sort().forEach(x => { sel.add(new Option(x, x)); });
-                
-                if (currentValue === 'ALL' || [...optionsSet].includes(currentValue)) {
-                    sel.value = currentValue;
-                } else {
-                    sel.value = 'ALL';
-                }
+                sel.value = (currentValue === 'ALL' || [...optionsSet].includes(currentValue)) ? currentValue : 'ALL';
             }
 
-            rebuildSelect('filterCultura', avCult, currCult, '(TODAS)');
-            rebuildSelect('filterSafra', avSafra, currSafra, '(TODAS)');
-            rebuildSelect('filterNucleo', avNuc, currNuc, '(TODOS)');
-            rebuildSelect('filterTalhao', avTal, currTal, '(TODOS)');
-            rebuildSelect('filterVariedade', avVar, currVar, '(TODAS)');
+            rebuildSelect('filterSafra', availableSafras, currSafra, '(TODAS AS SAFRAS)');
+            rebuildSelect('filterNucleo', availableNucleos, currNuc, '(TODOS OS NÚCLEOS)');
+            rebuildSelect('filterTalhao', availableTalhoes, currTal, '(TODOS OS TALHÕES)');
+            rebuildSelect('filterVariedade', availableVariedades, currVar, '(TODAS AS VARIEDADES)');
         }
 
         function resetFilters() {
-            document.getElementById('filterCultura').value = 'ALL';
             document.getElementById('filterSafra').value = 'ALL';
             document.getElementById('filterNucleo').value = 'ALL';
             document.getElementById('filterTalhao').value = 'ALL';
@@ -243,191 +236,282 @@
         }
 
         function applyFilters() {
-            const selCult = document.getElementById('filterCultura');
-            const selSafra = document.getElementById('filterSafra');
-            const selNuc = document.getElementById('filterNucleo');
-            const selTal = document.getElementById('filterTalhao');
-            const selVar = document.getElementById('filterVariedade');
-            
-            const fCult = selCult ? selCult.value : 'ALL';
-            const fSafra = selSafra ? selSafra.value : 'ALL';
-            const fNuc = selNuc ? selNuc.value : 'ALL';
-            const fTal = selTal ? selTal.value : 'ALL';
-            const fVar = selVar ? selVar.value : 'ALL';
+            const fSafra = document.getElementById('filterSafra')?.value || 'ALL';
+            const fNuc = document.getElementById('filterNucleo')?.value || 'ALL';
+            const fTal = document.getElementById('filterTalhao')?.value || 'ALL';
+            const fVar = document.getElementById('filterVariedade')?.value || 'ALL';
 
             filteredData = rawData.filter(r => {
-                let mCult = (fCult === 'ALL') || (r.Cultura && r.Cultura.trim() === fCult);
-                let mSafra = (fSafra === 'ALL') || (r.Safra && r.Safra.trim() === fSafra);
-                let mNuc = (fNuc === 'ALL') || (r.Nucleo && r.Nucleo.trim() === fNuc);
-                let mTal = (fTal === 'ALL') || (r.Talhao && r.Talhao.trim() === fTal);
-                let mVar = (fVar === 'ALL') || (r.Variedade && r.Variedade.trim() === fVar);
-                return mCult && mSafra && mNuc && mTal && mVar;
+                let mSafra = (fSafra === 'ALL') || (r.Safra && String(r.Safra).trim() === fSafra);
+                let mNuc = (fNuc === 'ALL') || (r.Nucleo && String(r.Nucleo).trim() === fNuc);
+                let mTal = (fTal === 'ALL') || (r.Talhao && String(r.Talhao).trim() === fTal);
+                let mVar = (fVar === 'ALL') || (r.Variedade && String(r.Variedade).trim() === fVar);
+                return mSafra && mNuc && mTal && mVar;
             });
             
-            updateDropdownOptions(fCult, fSafra, fNuc, fTal, fVar);
+            updateDropdownOptions(fSafra, fNuc, fTal, fVar);
             renderCharts();
         }
 
-        function getMeta(safra, cultura, variedade) {
-            if(!rawMetas || rawMetas.length === 0) return null;
-            return rawMetas.find(x => 
-                (x.Safra && safra && x.Safra.trim() === safra.trim()) &&
-                (x.Cultura && cultura && x.Cultura.trim() === cultura.trim()) &&
-                (x.Variedade && variedade && x.Variedade.trim() === variedade.trim())
-            );
-        }
-
-        function getStatusClass(val, ideal, tolL, tolV) {
-            let diff = Math.abs(val - ideal);
-            if(diff >= tolV) return 'border-vermelho';
-            if(diff >= tolL) return 'border-laranja';
-            return 'border-verde';
-        }
-        function getProfClass(val, vMin, vMax, lMin) {
-            if(val >= vMin && val <= vMax) return 'border-verde';
-            if(val >= lMin && val < vMin) return 'border-laranja';
-            return 'border-vermelho';
-        }
-        function getDuplasClass(val, vMax, lMax) {
-            if(val <= vMax) return 'border-verde';
-            if(val <= lMax) return 'border-laranja';
-            return 'border-vermelho';
-        }
-        function getGermClass(val, vMin, lMin) {
-            if(val >= vMin) return 'border-verde';
-            if(val >= lMin) return 'border-laranja';
-            return 'border-vermelho';
-        }
-
-        function setCard(idCard, idMeta, classColor, metaText) {
-            let card = document.getElementById(idCard);
-            card.className = "kpi-card " + classColor;
-            document.getElementById(idMeta).innerText = metaText;
+        function setCardColor(id, color) {
+            let el = document.getElementById(id);
+            if(el) { el.style.setProperty('--card-color', color); }
         }
 
         function renderCharts() {
-            let countAnalisePlantio = 0; let countAnaliseGerm = 0;
-            let talhoesPlantio = new Set(); let talhoesGerminacao = new Set();
-            let sumProf = 0; let nProf = 0;
-            let sumSem = 0; let nSem = 0;
-            let sumPlan = 0; let nPlan = 0;
-            let sumPlanTotais = 0; let sumPlanDuplasTotais = 0;
-            let estandeEsperadoTotal = 0; let estandeNascidoTotal = 0;
-            let varMap = {}; 
+            let countAnalisePlantio = 0, countAnaliseGerm = 0;
+            let talhoesPlantio = new Set(), talhoesGerminacao = new Set();
+            let datesSet = new Set();
+            
+            // Variáveis Ponderadas: Realizado
+            let sumAreaProf = 0, weightProf = 0;
+            let sumAreaSem = 0, weightSem = 0;
+            let sumAreaPlan = 0, weightPlan = 0;
+            let sumAreaPlanDuplas = 0, weightPlanDuplas = 0;
+            let sumAreaEmergeEsperado = 0, sumAreaEmergeNascido = 0;
 
-            // Totais de Metas
-            let tMS = 0, tTL_S = 0, tTV_S = 0, nMS = 0;
-            let tMP = 0, tTL_P = 0, tTV_P = 0, nMP = 0;
-            let tProfVM = 0, tProfVX = 0, tProfLM = 0, nMProf = 0;
-            let tGermV = 0, tGermL = 0, nMGerm = 0;
-            let tDupV = 0, tDupL = 0, nMDup = 0;
+            // Variáveis Ponderadas: Metas e Tolerâncias
+            let sumAreaMetaSem = 0, sumAreaTolSemLar = 0, sumAreaTolSemVerm = 0, weightMetaSem = 0;
+            let sumAreaProfMin = 0, sumAreaProfMax = 0, sumAreaProfLar = 0, weightMetaProf = 0;
+            let sumAreaMetaPlan = 0, sumAreaTolPlanLar = 0, sumAreaTolPlanVerm = 0, weightMetaPlan = 0;
+            let sumAreaDuplaVerde = 0, sumAreaDuplaLar = 0, weightMetaDupla = 0;
+            let sumAreaGermVerde = 0, sumAreaGermLar = 0, weightMetaGerm = 0;
+
+            let metaDict = {};
+            if (typeof dashboardMetas !== 'undefined' && dashboardMetas) {
+                dashboardMetas.forEach(m => { if(m.Variedade) metaDict[m.Variedade.trim()] = m; });
+            }
+
+            let varMap = {}; 
 
             filteredData.forEach(row => {
                 let sc = parseNum(row.SemContadas);
                 let pc = parseNum(row.PlantasContadas);
                 let pd = parseNum(row.PlantasDuplas);
+                let area = parseNum(row.Area) || 1;
+                
+                let v = row.Variedade ? row.Variedade.trim() : "";
+                let m = metaDict[v];
+                
+                if (row.DataPlantio) { datesSet.add(row.DataPlantio); }
+                
+                if(sc > 0) { countAnalisePlantio++; if(row.Talhao) talhoesPlantio.add(row.Talhao.trim()); }
+                if(pc > 0) { countAnaliseGerm++; if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim()); }
+
+                // 2. Profundidade
                 let prof = parseNum(row.Profundidade);
-                let meta = getMeta(row.Safra, row.Cultura, row.Variedade);
-                
-                if(sc > 0) { 
-                    countAnalisePlantio++; 
-                    if(row.Talhao) talhoesPlantio.add(row.Talhao.trim()); 
-                    
-                    let amos_m = parseNum(row.Amos_m) || 3;
-                    let sem_metro = sc / amos_m; 
-                    sumSem += sem_metro; nSem++; 
-                    
-                    if(meta) {
-                        tMS += parseNum(meta.Meta_Sem_m); tTL_S += parseNum(meta.Tol_Sem_Laranja); tTV_S += parseNum(meta.Tol_Sem_Vermelho); nMS++;
-                    }
-                }
-                
                 if(prof > 0) { 
-                    sumProf += prof; nProf++; 
-                    if(meta) {
-                        tProfVM += parseNum(meta.Prof_Verde_Min); tProfVX += parseNum(meta.Prof_Verde_Max); tProfLM += parseNum(meta.Prof_Laranja_Min); nMProf++;
+                    sumAreaProf += (prof * area); 
+                    weightProf += area; 
+                    if(m && m.ProfVerdeMin !== null && m.ProfVerdeMax !== null) {
+                        sumAreaProfMin += parseNum(m.ProfVerdeMin) * area;
+                        sumAreaProfMax += parseNum(m.ProfVerdeMax) * area;
+                        sumAreaProfLar += parseNum(m.ProfLaranjaMin) * area;
+                        weightMetaProf += area;
                     }
                 }
 
-                if(pc > 0) { 
-                    countAnaliseGerm++; 
-                    if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim()); 
-                    
-                    let planAmos_m = parseNum(row.AmosPlantas_m) || 10;
-                    let plan_metro = pc / planAmos_m; 
-                    sumPlan += plan_metro; nPlan++; 
-                    sumPlanTotais += pc; sumPlanDuplasTotais += pd;
-                    
-                    let sem_esperada_m = parseNum(row.SemEsperadas_m);
-                    if (sem_esperada_m > 0) {
-                        estandeEsperadoTotal += sem_esperada_m; estandeNascidoTotal += plan_metro;
-                    }
-
-                    if(meta) {
-                        tMP += parseNum(meta.Meta_Plan_m); tTL_P += parseNum(meta.Tol_Plan_Laranja); tTV_P += parseNum(meta.Tol_Plan_Vermelho); nMP++;
-                        tGermV += parseNum(meta.Meta_Germ_Verde); tGermL += parseNum(meta.Meta_Germ_Laranja); nMGerm++;
-                        tDupV += parseNum(meta.Duplas_Verde_Max); tDupL += parseNum(meta.Duplas_Laranja_Max); nMDup++;
+                // 1. Sementes/m
+                let amos_m = parseNum(row.Amos_m) || 3;
+                let sem_metro = 0;
+                if (sc > 0) { 
+                    sem_metro = sc / amos_m; 
+                    sumAreaSem += (sem_metro * area); 
+                    weightSem += area; 
+                    if(m) {
+                        sumAreaMetaSem += parseNum(m.MetaSem) * area;
+                        sumAreaTolSemLar += parseNum(m.TolSemLaranja) * area;
+                        sumAreaTolSemVerm += parseNum(m.TolSemVermelho) * area;
+                        weightMetaSem += area;
                     }
                 }
 
-                let v = row.Variedade || "Não Informada";
-                if (!varMap[v]) varMap[v] = { sumS:0, countS:0, sumP:0, countP:0 };
-                if (sc > 0) { varMap[v].sumS += (sc / (parseNum(row.Amos_m) || 3)); varMap[v].countS++; }
-                if (pc > 0) { varMap[v].sumP += (pc / (parseNum(row.AmosPlantas_m) || 10)); varMap[v].countP++; }
+                // 3 & 4. Plantas/m e Duplas
+                let planAmos_m = parseNum(row.AmosPlantas_m) || 10;
+                let plan_metro = 0;
+                if (pc > 0) { 
+                    plan_metro = pc / planAmos_m; 
+                    sumAreaPlan += (plan_metro * area); 
+                    weightPlan += area; 
+                    
+                    let txDuplaLinha = (pd / pc);
+                    sumAreaPlanDuplas += (txDuplaLinha * area);
+                    weightPlanDuplas += area;
+                    
+                    if(m) {
+                        sumAreaMetaPlan += parseNum(m.MetaPlan) * area;
+                        sumAreaTolPlanLar += parseNum(m.TolPlanLaranja) * area;
+                        sumAreaTolPlanVerm += parseNum(m.TolPlanVermelho) * area;
+                        weightMetaPlan += area;
+                        
+                        sumAreaDuplaVerde += parseNum(m.DuplaVerdeMax) * area;
+                        sumAreaDuplaLar += parseNum(m.DuplaLaranjaMax) * area;
+                        weightMetaDupla += area;
+                    }
+                }
+                
+                // 5. Germinação
+                let sem_esperada_m = parseNum(row.SemEsperadas_m);
+                if (sem_esperada_m > 0 && plan_metro > 0) {
+                    sumAreaEmergeEsperado += (sem_esperada_m * area);
+                    sumAreaEmergeNascido += (plan_metro * area);
+                    if(m) {
+                        sumAreaGermVerde += parseNum(m.GermVerdeMin) * area;
+                        sumAreaGermLar += parseNum(m.GermLaranjaMin) * area;
+                        weightMetaGerm += area;
+                    }
+                }
+
+                if (!varMap[v]) varMap[v] = { sumS:0, wS:0, sumP:0, wP:0, count:0 };
+                if (sc > 0) { varMap[v].sumS += (sem_metro * area); varMap[v].wS += area; varMap[v].count++; }
+                if (pc > 0) { varMap[v].sumP += (plan_metro * area); varMap[v].wP += area; varMap[v].count++; }
             });
 
-            // Medias Reais
+            // ----------------------------------------------------
+            // FECHAMENTO MÉDIAS REALIZADAS E DIAS (ATÉ HOJE)
+            // ----------------------------------------------------
+            
+            const fSafra = document.getElementById('filterSafra')?.value || 'ALL';
+            const fNuc = document.getElementById('filterNucleo')?.value || 'ALL';
+            const fTal = document.getElementById('filterTalhao')?.value || 'ALL';
+            const fVar = document.getElementById('filterVariedade')?.value || 'ALL';
+            
+            let isFiltered = (fSafra !== 'ALL' || fNuc !== 'ALL' || fTal !== 'ALL' || fVar !== 'ALL');
+            
+            if (isFiltered && datesSet.size > 0) {
+                let sortedDates = Array.from(datesSet).sort();
+                let minDate = new Date(sortedDates[0] + 'T00:00:00'); // Force local midnight
+                minDate.setHours(0, 0, 0, 0);
+                
+                let today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                let diffTime = today.getTime() - minDate.getTime();
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including today
+                diffDays = diffDays > 0 ? diffDays : 0; // fallback just in case
+                
+                document.getElementById('kpi-dias-plantio').innerText = diffDays;
+                
+                let startStr = sortedDates[0].split('-').reverse().join('/');
+                document.getElementById('sub-dias-plantio').innerText = `Desde ${startStr} até Hoje`;
+            } else {
+                document.getElementById('kpi-dias-plantio').innerText = "-";
+                document.getElementById('sub-dias-plantio').innerText = "Selecione filtros para calcular";
+            }
+            
             let percCobertura = talhoesPlantio.size > 0 ? (talhoesGerminacao.size / talhoesPlantio.size) * 100 : 0;
-            let avgProf = nProf ? (sumProf/nProf) : 0;
-            let avgSem = nSem ? (sumSem/nSem) : 0;
-            let avgPlan = nPlan ? (sumPlan/nPlan) : 0;
-            let txPlanDuplas = sumPlanTotais > 0 ? (sumPlanDuplasTotais / sumPlanTotais) * 100 : 0; 
-            let txEmerge = estandeEsperadoTotal ? (estandeNascidoTotal/estandeEsperadoTotal)*100 : 0;
+            let avgProf = weightProf > 0 ? (sumAreaProf / weightProf) : 0;
+            let avgSem = weightSem > 0 ? (sumAreaSem / weightSem) : 0;
+            let avgPlan = weightPlan > 0 ? (sumAreaPlan / weightPlan) : 0;
+            let txPlanDuplas = weightPlanDuplas > 0 ? (sumAreaPlanDuplas / weightPlanDuplas) * 100 : 0; 
+            let txEmerge = sumAreaEmergeEsperado > 0 ? (sumAreaEmergeNascido / sumAreaEmergeEsperado) * 100 : 0;
 
-            // Medias das Metas
-            let avgMS = nMS ? (tMS/nMS) : null; let avgTL_S = nMS ? (tTL_S/nMS) : null; let avgTV_S = nMS ? (tTV_S/nMS) : null;
-            let avgMP = nMP ? (tMP/nMP) : null; let avgTL_P = nMP ? (tTL_P/nMP) : null; let avgTV_P = nMP ? (tTV_P/nMP) : null;
-            let avgProfVM = nMProf ? (tProfVM/nMProf) : null; let avgProfVX = nMProf ? (tProfVX/nMProf) : null; let avgProfLM = nMProf ? (tProfLM/nMProf) : null;
-            let avgGermV = nMGerm ? (tGermV/nMGerm)*100 : null; let avgGermL = nMGerm ? (tGermL/nMGerm)*100 : null;
-            let avgDupV = nMDup ? (tDupV/nMDup)*100 : null; let avgDupL = nMDup ? (tDupL/nMDup)*100 : null;
-
-            // Atualiza Bloco 1
             document.getElementById('kpi-analise-plantio').innerText = countAnalisePlantio;
             document.getElementById('kpi-analise-germ').innerText = countAnaliseGerm;
-            document.getElementById('kpi-cobertura').innerText = percCobertura.toFixed(1).replace('.', ',') + "%";
+            document.getElementById('kpi-cobertura').innerText = percCobertura.toFixed(2).replace('.', ',') + "%";
             document.getElementById('sub-cobertura').innerText = `${talhoesGerminacao.size} de ${talhoesPlantio.size} talhões com estande avaliado`;
 
-            // Atualiza Valores Bloco 2
             document.getElementById('kpi-sem-metro').innerText = avgSem.toFixed(2).replace('.', ',');
             document.getElementById('kpi-profundidade').innerText = avgProf.toFixed(1).replace('.', ',') + " cm";
             document.getElementById('kpi-plan-metro').innerText = avgPlan.toFixed(2).replace('.', ',');
-            document.getElementById('kpi-plan-duplas').innerText = txPlanDuplas.toFixed(1).replace('.', ',') + "%";
-            document.getElementById('kpi-germinacao').innerText = txEmerge.toFixed(1).replace('.', ',') + "%";
+            document.getElementById('kpi-plan-duplas').innerText = txPlanDuplas.toFixed(2).replace('.', ',') + "%";
+            document.getElementById('kpi-germinacao').innerText = txEmerge.toFixed(2).replace('.', ',') + "%";
 
-            // Aplica Farol e Textos das Metas
-            let cSem = avgMS ? getStatusClass(avgSem, avgMS, avgTL_S, avgTV_S) : 'border-base';
-            setCard('card-semente', 'meta-semente', cSem, avgMS ? `🎯 Meta: ${avgMS.toFixed(1).replace('.',',')}` : '🎯 Meta: S/D');
+            // Set default colors for top cards
+            setCardColor('card-prog-1', COLOR_NEUTRAL);
+            setCardColor('card-prog-2', COLOR_NEUTRAL);
+            setCardColor('card-prog-3', COLOR_NEUTRAL);
+            setCardColor('card-prog-dias', COLOR_NEUTRAL);
 
-            let cProf = avgProfVM ? getProfClass(avgProf, avgProfVM, avgProfVX, avgProfLM) : 'border-base';
-            setCard('card-prof', 'meta-prof', cProf, avgProfVM ? `🎯 Meta: ${avgProfVM.toFixed(1).replace('.',',')} a ${avgProfVX.toFixed(1).replace('.',',')} cm` : '🎯 Meta: S/D');
+            // ----------------------------------------------------
+            // FECHAMENTO METAS E CORES
+            // ----------------------------------------------------
+            
+            // 1. Sementes/m (Cor e Meta)
+            let colSem = COLOR_NEUTRAL;
+            if(weightMetaSem > 0) {
+                let mSem = sumAreaMetaSem / weightMetaSem;
+                let tLar = sumAreaTolSemLar / weightMetaSem;
+                let tVerm = sumAreaTolSemVerm / weightMetaSem;
+                document.getElementById('meta-sem-metro').innerText = `🎯 Meta: ${mSem.toFixed(1).replace('.', ',')}`;
+                
+                let diffSem = Math.abs(avgSem - mSem);
+                if(diffSem <= tLar) colSem = COLOR_GREEN;
+                else if(diffSem <= tVerm) colSem = COLOR_ORANGE;
+                else colSem = COLOR_RED;
+            } else { document.getElementById('meta-sem-metro').innerText = `🎯 Meta: -`; }
+            setCardColor('card-sem', colSem);
 
-            let cPlan = avgMP ? getStatusClass(avgPlan, avgMP, avgTL_P, avgTV_P) : 'border-base';
-            setCard('card-planta', 'meta-planta', cPlan, avgMP ? `🎯 Meta: ${avgMP.toFixed(1).replace('.',',')}` : '🎯 Meta: S/D');
+            // 2. Profundidade (Cor e Meta)
+            let colProf = COLOR_NEUTRAL;
+            if(weightMetaProf > 0) {
+                let pMin = sumAreaProfMin / weightMetaProf;
+                let pMax = sumAreaProfMax / weightMetaProf;
+                let pLarMin = sumAreaProfLar / weightMetaProf;
+                let pLarMax = pMax + (pMin - pLarMin); // Simétrica para limite superior
+                
+                document.getElementById('meta-profundidade').innerText = `🎯 Meta: ${pMin.toFixed(1).replace('.', ',')} a ${pMax.toFixed(1).replace('.', ',')} cm`;
+                
+                if(avgProf >= pMin && avgProf <= pMax) colProf = COLOR_GREEN;
+                else if(avgProf >= pLarMin && avgProf <= pLarMax) colProf = COLOR_ORANGE;
+                else colProf = COLOR_RED;
+            } else { document.getElementById('meta-profundidade').innerText = `🎯 Meta: -`; }
+            setCardColor('card-prof', colProf);
 
-            let cDup = avgDupV ? getDuplasClass(txPlanDuplas, avgDupV, avgDupL) : 'border-base';
-            setCard('card-duplas', 'meta-duplas', cDup, avgDupV ? `🎯 Meta: Máx ${avgDupV.toFixed(1).replace('.',',')}%` : '🎯 Meta: S/D');
+            // 3. Plantas/m (Cor e Meta)
+            let colPlan = COLOR_NEUTRAL;
+            if(weightMetaPlan > 0) {
+                let mPlan = sumAreaMetaPlan / weightMetaPlan;
+                let tLarP = sumAreaTolPlanLar / weightMetaPlan;
+                let tVermP = sumAreaTolPlanVerm / weightMetaPlan;
+                document.getElementById('meta-plan-metro').innerText = `🎯 Meta: ${mPlan.toFixed(1).replace('.', ',')}`;
+                
+                let diffPlan = Math.abs(avgPlan - mPlan);
+                if(diffPlan <= tLarP) colPlan = COLOR_GREEN;
+                else if(diffPlan <= tVermP) colPlan = COLOR_ORANGE;
+                else colPlan = COLOR_RED;
+            } else { document.getElementById('meta-plan-metro').innerText = `🎯 Meta: -`; }
+            setCardColor('card-plan', colPlan);
 
-            let cGerm = avgGermV ? getGermClass(txEmerge, avgGermV, avgGermL) : 'border-base';
-            setCard('card-germ', 'meta-germ', cGerm, avgGermV ? `🎯 Meta: Mín ${avgGermV.toFixed(1).replace('.',',')}%` : '🎯 Meta: S/D');
+            // 4. Plantas Duplas (Cor e Meta)
+            let colDupla = COLOR_NEUTRAL;
+            if(weightMetaDupla > 0) {
+                let dVerde = (sumAreaDuplaVerde / weightMetaDupla) * 100;
+                let dLaranja = (sumAreaDuplaLar / weightMetaDupla) * 100;
+                document.getElementById('meta-plan-duplas').innerText = `🎯 Meta: Máx ${dVerde.toFixed(2).replace('.', ',')}%`;
+                
+                if(txPlanDuplas <= dVerde) colDupla = COLOR_GREEN;
+                else if(txPlanDuplas <= dLaranja) colDupla = COLOR_ORANGE;
+                else colDupla = COLOR_RED;
+            } else { document.getElementById('meta-plan-duplas').innerText = `🎯 Meta: -`; }
+            setCardColor('card-dupla', colDupla);
 
+            // 5. Germinação (Cor e Meta)
+            let colGerm = COLOR_NEUTRAL;
+            if(weightMetaGerm > 0) {
+                let gVerde = (sumAreaGermVerde / weightMetaGerm) * 100;
+                let gLaranja = (sumAreaGermLar / weightMetaGerm) * 100;
+                document.getElementById('meta-germinacao').innerText = `🎯 Meta: Mín ${gVerde.toFixed(2).replace('.', ',')}%`;
+                
+                if(txEmerge >= gVerde) colGerm = COLOR_GREEN;
+                else if(txEmerge >= gLaranja) colGerm = COLOR_ORANGE;
+                else colGerm = COLOR_RED;
+            } else { document.getElementById('meta-germinacao').innerText = `🎯 Meta: -`; }
+            setCardColor('card-germ', colGerm);
 
-            // Graficos
-            let varLabels = []; let varSemData = []; let varPlanData = []; let varDoughnutData = [];
+            // ----------------------------------------------------
+            // GRÁFICOS (Estande com Rótulos de Porcentagem Vertical)
+            // ----------------------------------------------------
+            let varLabels = [];
+            let varSemData = [];
+            let varPlanData = [];
+            let varDoughnutData = [];
+
             Object.keys(varMap).forEach(v => {
                 varLabels.push(v);
-                varSemData.push(varMap[v].countS ? (varMap[v].sumS / varMap[v].countS) : 0);
-                varPlanData.push(varMap[v].countP ? (varMap[v].sumP / varMap[v].countP) : 0);
-                varDoughnutData.push(varMap[v].countS + varMap[v].countP);
+                varSemData.push(varMap[v].wS > 0 ? (varMap[v].sumS / varMap[v].wS) : 0);
+                varPlanData.push(varMap[v].wP > 0 ? (varMap[v].sumP / varMap[v].wP) : 0);
+                varDoughnutData.push(varMap[v].count);
             });
 
             if (chartEstandeInstance) chartEstandeInstance.destroy();
@@ -436,31 +520,37 @@
                 data: {
                     labels: varLabels,
                     datasets: [
-                        { label: 'Sementes/m', data: varSemData, backgroundColor: '#5B9BD5', borderRadius: 4, datalabels: { color: '#000' } },
-                        { label: 'Plantas/m (Estande)', data: varPlanData, backgroundColor: '#1B365D', borderRadius: 4, datalabels: { color: '#fff' } }
+                        { 
+                            label: 'Sementes/m', data: varSemData, backgroundColor: '#5B9BD5', borderRadius: 4, 
+                            datalabels: { color: '#000' } 
+                        },
+                        { 
+                            label: 'Plantas/m (Estande)', data: varPlanData, backgroundColor: '#1B365D', borderRadius: 4, 
+                            datalabels: { color: '#fff' } 
+                        }
                     ]
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false,
                     plugins: { 
-                        title: { display: true, text: 'Sementes vs Plantas por Variedade', font: {size: 14} },
+                        title: { display: true, text: 'Sementes vs Plantas por Variedade (Média Ponderada)', font: {size: 14} },
                         legend: { position: 'bottom' },
-                        datalabels: {
-                            anchor: 'center', align: 'center', rotation: -90, font: { weight: 'bold', size: 11 },
+                        datalabels: { 
+                            anchor: 'center', 
+                            align: 'center', 
+                            rotation: -90,
+                            font: { weight: 'bold', size: 10 }, 
                             formatter: function(value, context) { 
                                 if (value <= 0) return '';
-                                let texto = value.toFixed(1).replace('.', ',');
-                                if (context.datasetIndex === 0) {
-                                    texto += ' (100%)';
-                                } else if (context.datasetIndex === 1) {
+                                let fVal = value.toFixed(2).replace('.', ',');
+                                if(context.datasetIndex === 0) {
+                                    return fVal + ' (100%)';
+                                } else {
                                     let sementes = context.chart.data.datasets[0].data[context.dataIndex];
-                                    if (sementes > 0) {
-                                        let perc = (value / sementes) * 100;
-                                        texto += ' (' + perc.toFixed(1).replace('.', ',') + '%)';
-                                    }
+                                    let pct = sementes > 0 ? (value / sementes) * 100 : 0;
+                                    return fVal + ' (' + pct.toFixed(2).replace('.', ',') + '%)';
                                 }
-                                return texto; 
-                            }
+                            } 
                         }
                     }
                 }
@@ -471,20 +561,14 @@
                 type: 'doughnut',
                 data: {
                     labels: varLabels,
-                    datasets: [{
-                        data: varDoughnutData,
-                        backgroundColor: ['#1B365D', '#2C4D79', '#3D6396', '#4E7AB2', '#5F90CE', '#70A6EA', '#59697A', '#6C737B', '#8E949B', '#4A515A']
-                    }]
+                    datasets: [{ data: varDoughnutData, backgroundColor: ['#1B365D', '#2C4D79', '#3D6396', '#4E7AB2', '#5F90CE', '#70A6EA', '#59697A', '#6C737B', '#8E949B', '#4A515A'] }]
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false,
                     plugins: { 
                         title: { display: true, text: 'Amostras Totais por Variedade', font: {size: 14} },
-                        legend: { position: 'bottom', labels: { boxWidth: 10 } },
-                        datalabels: {
-                            color: '#fff', textStrokeColor: '#1B365D', textStrokeWidth: 1, font: { weight: 'bold', size: 14 },
-                            formatter: function(value) { return value > 0 ? value : ''; }
-                        }
+                        legend: { position: 'bottom' },
+                        datalabels: { anchor: 'center', align: 'center', font: { weight: 'bold', size: 11 }, rotation: -90, formatter: function(value) { return value > 0 ? value + '' : ''; } }
                     }
                 }
             });
@@ -494,16 +578,14 @@
             if (typeof dashboardData === 'undefined' || !dashboardData || dashboardData.length === 0) {
                 setSyncStatus("Planilha vazia ou lendo...", "yellow"); return;
             }
-            
-            let currentHash = JSON.stringify(dashboardData) + (typeof metasData !== 'undefined' ? JSON.stringify(metasData) : "");
+            let currentHash = JSON.stringify(dashboardData);
             if (currentHash === lastRawDataHash) return;
             
             lastRawDataHash = currentHash;
             rawData = dashboardData;
-            rawMetas = typeof metasData !== 'undefined' ? metasData : [];
             
             if (!initializedFilters) {
-                updateDropdownOptions('ALL', 'ALL', 'ALL', 'ALL', 'ALL');
+                updateDropdownOptions('ALL', 'ALL', 'ALL', 'ALL');
                 initializedFilters = true;
             }
             
@@ -516,13 +598,9 @@
             const txt = document.getElementById('sync-status');
             txt.innerText = msg;
             
-            if(color === "red") {
-                dot.style.backgroundColor = "#dc3545"; txt.style.color = "#ffc107";
-            } else if (color === "yellow") {
-                dot.style.backgroundColor = "#ffc107"; txt.style.color = "#ffc107";
-            } else {
-                dot.style.backgroundColor = "#28a745"; txt.style.color = "white";
-            }
+            if(color === "red") { dot.style.backgroundColor = "#dc3545"; txt.style.color = "#ffc107"; } 
+            else if (color === "yellow") { dot.style.backgroundColor = "#ffc107"; txt.style.color = "#ffc107"; } 
+            else { dot.style.backgroundColor = "#28a745"; txt.style.color = "white"; }
         }
 
         function reloadData() {
