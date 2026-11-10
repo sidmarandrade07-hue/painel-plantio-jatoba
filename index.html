@@ -44,11 +44,11 @@
                 <div class="logo-container">
                     <img src="Logo.png" alt="Logo Jatobá" class="logo-img" onerror="this.style.display='none'">
                 </div>
-                <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio</h5>
+                <h5 class="m-0 text-white fw-bold">🌱 Painel Gerencial - Qualidade de Plantio (Soja)</h5>
             </div>
             <div class="d-flex align-items-center">
                 <span class="indicator-dot" id="dot-status"></span>
-                <span id="sync-status" class="fw-semibold" style="font-size: 0.9rem;">Aguardando Excel Local...</span>
+                <span id="sync-status" class="fw-semibold" style="font-size: 0.9rem;">Aguardando JSON Local...</span>
             </div>
         </div>
 
@@ -294,6 +294,7 @@
                 let m = metaDict[v];
                 
                 if (row.DataPlantio) { datesSet.add(row.DataPlantio); }
+                else if (row.Data) { datesSet.add(row.Data.split('T')[0]); } // Fallback to 'Data' if DataPlantio is not mapped
                 
                 if(sc > 0) { countAnalisePlantio++; if(row.Talhao) talhoesPlantio.add(row.Talhao.trim()); }
                 if(pc > 0) { countAnaliseGerm++; if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim()); }
@@ -380,7 +381,7 @@
             
             if (isFiltered && datesSet.size > 0) {
                 let sortedDates = Array.from(datesSet).sort();
-                let minDate = new Date(sortedDates[0] + 'T00:00:00'); // Force local midnight
+                let minDate = new Date(sortedDates[0] + 'T00:00:00');
                 minDate.setHours(0, 0, 0, 0);
                 
                 let today = new Date();
@@ -576,7 +577,7 @@
 
         function processNewData() {
             if (typeof dashboardData === 'undefined' || !dashboardData || dashboardData.length === 0) {
-                setSyncStatus("Planilha vazia ou lendo...", "yellow"); return;
+                setSyncStatus("Aguardando JSON Local...", "yellow"); return;
             }
             let currentHash = JSON.stringify(dashboardData);
             if (currentHash === lastRawDataHash) return;
@@ -617,7 +618,7 @@
                     processNewData();
                 }
             };
-            script.onerror = () => setSyncStatus("Falha ao ler dados (veja janela preta)", "red");
+            script.onerror = () => setSyncStatus("Falha ao ler dados do json local", "red");
             document.body.appendChild(script);
         }
 
