@@ -90,7 +90,7 @@
                 <div class="kpi-card" id="card-prog-1">
                     <div class="kpi-title">Análises de Plantio (Inicial)</div>
                     <div class="kpi-value" style="color: #1B365D" id="kpi-analise-plantio">0</div>
-                    <div class="kpi-sub">Amostras colhidas logo após plantadeira</div>
+                    <div class="kpi-sub">Amostras colhidas logo após semeadura</div>
                 </div>
             </div>
             <div class="col-md-3">
@@ -191,6 +191,16 @@
             return parseFloat(val.toString().replace(',', '.')) || 0;
         }
 
+        // Recupera o primeiro valor válido e numérico de um array de possíveis nomes de colunas
+        function getFirstValid(obj, keys) {
+            for(let k of keys) {
+                if (obj[k] !== undefined && obj[k] !== null && obj[k] !== "") {
+                    return parseNum(obj[k]);
+                }
+            }
+            return 0;
+        }
+
         function updateDropdownOptions(currSafra, currNuc, currTal, currVar) {
             let availableSafras = new Set();
             let availableNucleos = new Set();
@@ -263,14 +273,20 @@
             let talhoesPlantio = new Set(), talhoesGerminacao = new Set();
             let datesSet = new Set();
             
-            // Variáveis Ponderadas: Realizado
-            let sumAreaProf = 0, weightProf = 0;
-            let sumAreaSem = 0, weightSem = 0;
-            let sumAreaPlan = 0, weightPlan = 0;
-            let sumAreaPlanDuplas = 0, weightPlanDuplas = 0;
-            let sumAreaEmergeEsperado = 0, sumAreaEmergeNascido = 0;
+            // ==========================================
+            // VARIÁVEIS PARA CÁLCULO DE MÉDIA PONDERADA
+            // ==========================================
+            // O conceito de média ponderada agronômica utilizado aqui garante que talhões maiores
+            // tenham maior peso no resultado final do indicador. A lógica é: (Valor da Amostra * Área do Talhão) / Área Total.
+            
+            let sumAreaProf = 0, weightProf = 0; // Profundidade
+            let sumAreaSem = 0, weightSem = 0;   // Sementes/m
+            let sumAreaPlan = 0, weightPlan = 0; // Plantas/m
+            let sumAreaPlanDuplas = 0, weightPlanDuplas = 0; // Plantas Duplas
+            let sumAreaEmergeEsperado = 0, sumAreaEmergeNascido = 0; // Germinação
 
-            // Variáveis Ponderadas: Metas e Tolerâncias
+            // Variáveis Ponderadas: Metas e Tolerâncias (O Alvo Móvel)
+            // As metas também são ponderadas para garantir justeza caso o filtro englobe mais de uma variedade.
             let sumAreaMetaSem = 0, sumAreaTolSemLar = 0, sumAreaTolSemVerm = 0, weightMetaSem = 0;
             let sumAreaProfMin = 0, sumAreaProfMax = 0, sumAreaProfLar = 0, weightMetaProf = 0;
             let sumAreaMetaPlan = 0, sumAreaTolPlanLar = 0, sumAreaTolPlanVerm = 0, weightMetaPlan = 0;
@@ -279,23 +295,23 @@
 
             let metaDict = {};
             if (typeof dashboardMetas !== 'undefined' && dashboardMetas) {
-                // Inteligência para aceitar nomes exatos do seu PowerAutomate
+                // Inteligência para aceitar nomes exatos do seu PowerAutomate, nomes mapeados ou nomes curtos do PowerShell.
                 dashboardMetas.forEach(m => { 
                     if(m.Variedade) {
                         metaDict[m.Variedade.trim()] = {
-                            MetaSem: parseNum(m.Meta_Sem_m),
-                            TolSemLaranja: parseNum(m.Tol_Sem_Laranja),
-                            TolSemVermelho: parseNum(m.Tol_Sem_Vermelho),
-                            ProfVerdeMin: parseNum(m.Prof_Verde_Min),
-                            ProfVerdeMax: parseNum(m.Prof_Verde_Max),
-                            ProfLaranjaMin: parseNum(m.Prof_Laranja_Min),
-                            MetaPlan: parseNum(m.Meta_Plan_m),
-                            TolPlanLaranja: parseNum(m.Tol_Plan_Laranja),
-                            TolPlanVermelho: parseNum(m.Tol_Plan_Vermelho),
-                            DuplaVerdeMax: parseNum(m.Duplas_Verde_Max),
-                            DuplaLaranjaMax: parseNum(m.Duplas_Laranja_Max),
-                            GermVerdeMin: parseNum(m.Meta_Germ_Verde),
-                            GermLaranjaMin: parseNum(m.Meta_Germ_Laranja)
+                            MetaSem: getFirstValid(m, ['Meta_Sem_m', 'Meta Sementes Metro', 'MetaSem']),
+                            TolSemLaranja: getFirstValid(m, ['Tol_Sem_Laranja', 'Tolerencia Sementes Laranja', 'TolSemLaranja']),
+                            TolSemVermelho: getFirstValid(m, ['Tol_Sem_Vermelho', 'Tolerencia Sementes Vermelho', 'TolSemVermelho']),
+                            ProfVerdeMin: getFirstValid(m, ['Prof_Verde_Min', 'Profundidade Verde Minima', 'ProfVerdeMin']),
+                            ProfVerdeMax: getFirstValid(m, ['Prof_Verde_Max', 'Profundidade Verde Máxima', 'ProfVerdeMax']),
+                            ProfLaranjaMin: getFirstValid(m, ['Prof_Laranja_Min', 'Profundidade Laranja Minimo', 'ProfLaranjaMin']),
+                            MetaPlan: getFirstValid(m, ['Meta_Plan_m', 'Meta Plantas Metros', 'MetaPlan']),
+                            TolPlanLaranja: getFirstValid(m, ['Tol_Plan_Laranja', 'Tolerancia Plantas Laranja', 'TolPlanLaranja']),
+                            TolPlanVermelho: getFirstValid(m, ['Tol_Plan_Vermelho', 'Tolerancia Plantas Vermelho', 'TolPlanVermelho']),
+                            DuplaVerdeMax: getFirstValid(m, ['Duplas_Verde_Max', 'Sementes Duplas Verde Max', 'DuplaVerdeMax']),
+                            DuplaLaranjaMax: getFirstValid(m, ['Duplas_Laranja_Max', 'Sementes Duplas Laranja Max', 'DuplaLaranjaMax']),
+                            GermVerdeMin: getFirstValid(m, ['Meta_Germ_Verde', 'Germinação Verde Minima', 'GermVerdeMin']),
+                            GermLaranjaMin: getFirstValid(m, ['Meta_Germ_Laranja', 'Germinação Laranja Minima', 'GermLaranjaMin'])
                         };
                     } 
                 });
@@ -304,10 +320,12 @@
             let varMap = {}; 
 
             filteredData.forEach(row => {
-                let sc = parseNum(row.SemContadas);
-                let pc = parseNum(row.PlantasContadas);
-                let pd = parseNum(row.PlantasDuplas);
-                let area = parseNum(row.Area) || parseNum(row.Área) || 1; // Aceita com ou sem acento
+                let sc = getFirstValid(row, ['SemContadas', 'Sementes por metro realizado', 'Sementes_Contadas']);
+                let pc = getFirstValid(row, ['PlantasContadas', 'Plantas por metro', 'Plantas_Contadas']);
+                let pd = getFirstValid(row, ['PlantasDuplas', 'Sementes Duplas da Amostra', 'Plantas_Duplas']);
+                
+                let area = getFirstValid(row, ['Area', 'Área', 'Área (ha)', 'Area (ha)']);
+                if (area === 0) area = 1; // Previne divisão por zero caso a área não venha preenchida
                 
                 let v = row.Variedade ? row.Variedade.trim() : "";
                 let m = metaDict[v];
@@ -319,11 +337,14 @@
                 if(sc > 0) { countAnalisePlantio++; if(row.Talhao) talhoesPlantio.add(row.Talhao.trim()); }
                 if(pc > 0) { countAnaliseGerm++; if(row.Talhao) talhoesGerminacao.add(row.Talhao.trim()); }
 
-                // 2. Profundidade
-                let prof = parseNum(row.Profundidade);
+                // ==========================================
+                // 2. PROFUNDIDADE (Ponderada pela Área)
+                // ==========================================
+                let prof = getFirstValid(row, ['Profundidade', 'Profundidade sementes (cm) (Ideal de 3 a 5)', 'Profundidade_cm']);
                 if(prof > 0) { 
-                    sumAreaProf += (prof * area); 
-                    weightProf += area; 
+                    sumAreaProf += (prof * area); // Multiplica valor pela área para criar o "peso" acumulado
+                    weightProf += area;           // Soma a área total para dividir no final
+                    
                     if(m && m.ProfVerdeMax > 0) {
                         sumAreaProfMin += m.ProfVerdeMin * area;
                         sumAreaProfMax += m.ProfVerdeMax * area;
@@ -332,13 +353,16 @@
                     }
                 }
 
-                // 1. Sementes/m
-                let amos_m = parseNum(row.Amos_m) || parseNum(row['Amostragem (m)']) || 3;
+                // ==========================================
+                // 1. SEMENTES / METRO (Ponderada pela Área)
+                // ==========================================
+                let amos_m = getFirstValid(row, ['Amos_m', 'Amostragem (m)', 'Amostragem_m']) || 3;
                 let sem_metro = 0;
                 if (sc > 0) { 
                     sem_metro = sc / amos_m; 
                     sumAreaSem += (sem_metro * area); 
                     weightSem += area; 
+                    
                     if(m && m.MetaSem > 0) {
                         sumAreaMetaSem += m.MetaSem * area;
                         sumAreaTolSemLar += m.TolSemLaranja * area;
@@ -347,14 +371,19 @@
                     }
                 }
 
-                // 3 & 4. Plantas/m e Duplas
-                let planAmos_m = parseNum(row.AmosPlantas_m) || 10;
+                // ==========================================
+                // 3. PLANTAS / METRO E 4. PLANTAS DUPLAS (Ponderadas)
+                // ==========================================
+                let planAmos_m = getFirstValid(row, ['AmosPlantas_m', 'Amostragem_Plantas_m']) || 10;
                 let plan_metro = 0;
                 if (pc > 0) { 
+                    // Plantas / Metro
                     plan_metro = pc / planAmos_m; 
                     sumAreaPlan += (plan_metro * area); 
                     weightPlan += area; 
                     
+                    // Plantas Duplas: Calcula a taxa de duplas na amostra e pondera pela área. 
+                    // Evita que um erro numa amostra pequena distorça a média global da fazenda.
                     let txDuplaLinha = (pd / pc);
                     sumAreaPlanDuplas += (txDuplaLinha * area);
                     weightPlanDuplas += area;
@@ -371,11 +400,15 @@
                     }
                 }
                 
-                // 5. Germinação
-                let sem_esperada_m = parseNum(row.SemEsperadas_m) || parseNum(row['Sementes por metro esperadas  ']) || parseNum(row.SemEsperadas_m);
+                // ==========================================
+                // 5. GERMINAÇÃO (%)
+                // ==========================================
+                // Germinação não faz média de percentual. Ela avalia (Plantas nascidas x área) vs (Plantas esperadas x área).
+                let sem_esperada_m = getFirstValid(row, ['SemEsperadas_m', 'Sementes por metro esperadas  ', 'Sementes_Esperadas_m']);
                 if (sem_esperada_m > 0 && plan_metro > 0) {
                     sumAreaEmergeEsperado += (sem_esperada_m * area);
                     sumAreaEmergeNascido += (plan_metro * area);
+                    
                     if(m && m.GermVerdeMin > 0) {
                         sumAreaGermVerde += m.GermVerdeMin * area;
                         sumAreaGermLar += m.GermLaranjaMin * area;
@@ -421,6 +454,8 @@
             }
             
             let percCobertura = talhoesPlantio.size > 0 ? (talhoesGerminacao.size / talhoesPlantio.size) * 100 : 0;
+            
+            // O Fechamento: Divide o Peso Acumulado pela Área Total correspondente
             let avgProf = weightProf > 0 ? (sumAreaProf / weightProf) : 0;
             let avgSem = weightSem > 0 ? (sumAreaSem / weightSem) : 0;
             let avgPlan = weightPlan > 0 ? (sumAreaPlan / weightPlan) : 0;
